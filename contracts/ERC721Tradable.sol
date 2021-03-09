@@ -19,6 +19,9 @@ contract ERC721Tradable is ERC721Full, Ownable {
 
     address proxyRegistryAddress;
     uint256 private _currentTokenId = 0;
+    mapping(uint256 => string) public _idToUrl;
+    mapping(string => uint256) public _urlToId;
+
 
     constructor(
         string memory _name,
@@ -30,12 +33,20 @@ contract ERC721Tradable is ERC721Full, Ownable {
 
     /**
      * @dev Mints a token to an address with a tokenURI.
+     * @param _imageUrl imageUrl of the image for this token if it doesn't already exist
      * @param _to address of the future owner of the token
      */
-    function mintTo(address _to) public {
+    function mintTo(string memory _imageUrl, address _to) public {
+        require(_urlToId[_imageUrl] == 0, "imageUrl exists");
         uint256 newTokenId = _getNextTokenId();
         _mint(_to, newTokenId);
         _incrementTokenId();
+        // map the id to it's URL so we can look it up later.
+        // this is done so we can periodically check if any URLs have been minted but are missing
+        // their corresponding metadata.
+        _idToUrl[newTokenId] = _imageUrl;
+        // mark this URL as minted so we can check against it's uniqueness above.
+        _urlToId[_imageUrl] = newTokenId;
     }
 
     /**
