@@ -36,6 +36,7 @@ module.exports = {
       },
       gas: 5000000,
       network_id: "*",
+      networkCheckTimeout: 1000000000
     },
     live: {
       network_id: 1,
